@@ -1,16 +1,10 @@
-## A simple string utility library for Godot. (v0.2.0)[br]
+## A simple string utility library for Godot. (v0.2.1)[br]
 ##
 ## [b]Contents Updated![/b][br]
 ##[br]
-## - Added features: [br]
-##[br]
-## 1. color[br]
-## 2. markdown[br]
-##[br]
-## - Fix some bugs:[br]
-##[br]
-## 1. Classes extending UnInstantiable cannot be instantiated.[br]
+## 1. StringTool.markdown.Markdown and StringTool.markdown.MarkdownViewer.bind_md() is deprecated.[br]
 ## 2. Added more documentation comments for StringTool.
+## 3. Fixed MarkdownViewer and add Inspector variables.
 @icon("res://addons/string_tool/icon04.png")
 extends RefCounted
 class_name StringTool
@@ -279,32 +273,14 @@ class color extends UnInstantiable:
 			string="#"+string
 		return string
 class markdown extends UnInstantiable:
-	class MarkdownViewer extends Control:
-		var md: Markdown
-		signal empty
-		signal text_added(add_text:String)
-		var label:RichTextLabel
-		func _ready() -> void:
-			label= RichTextLabel.new()
-			add_child(label)
-		func _init() -> void:
-			pass
-		func add_text(text: String):
-			if label:
-				label.text += text
-			text_added.emit(text)
-		func bind_string(string:String):
-			var md = Markdown.new()
-			md.text=string
-			self.md=md
-		func bind(md: Markdown):
-			self.md=md
-			self.md._bounded = true
-			self.md._viewer = self
+	const MarkdownViewer = preload("res://addons/string_tool/mdv.gd")
+
+	## @deprecated: Please use MarkdownDocument instead Markdown.
+	## [b]This class is be deprecated. Please use MarkdownDocument instead Markdown.[/b]
 	class Markdown:
 		var text = ""
-		var _bounded = false
-		var _viewer=null
+		var _bounded := false
+		var _viewer: MarkdownViewer
 		func _init() -> void:
 			pass
 		func add_link(name: String, link: String) -> String:
@@ -357,6 +333,55 @@ class markdown extends UnInstantiable:
 					assert(false, "Error: Cannot find file \""+file+"\", file is not exists or be deleted or moved")
 				return null
 			var md=Markdown.new()
+			md.text=fp.get_as_text()
+			fp.close()
+			return md
+		func _to_string() -> String:
+			return text
+	class MarkdownDocument:
+		var text = ""
+		func _init() -> void:
+			pass
+		func add_link(name: String, link: String) -> String:
+			var string=markdown.link(name,link)
+			text+=string+"\n"
+			return string
+		func add_code(language: String, ...codes):
+			var code="\n".join(codes)
+			var string=markdown.code(language,code)+"\n"
+			text+=string
+			return string
+		func add_h1(text: String) -> String:
+			var string=markdown.h1(text)+"\n"
+			self.text+=string
+			return string
+		func add_h2(text: String) -> String:
+			var string=markdown.h2(text)+"\n"
+			self.text+=string
+			return string
+		func add_h3(text: String) -> String:
+			var string=markdown.h3(text)+"\n"
+			self.text+=string
+			return string
+		func save(file: String, debug:=false):
+			var fp=FileAccess.open(file,FileAccess.WRITE)
+			if fp==null:
+				if debug:
+					print("[Info] Open Failed")
+				assert(false, "Error: Cannot open file "+file)
+			if debug:
+				print("[Info] Writing text to "+file)
+			fp.store_string(self.text)
+			fp.close()
+			if debug:
+				print("[Info] successfully saved markdown in "+file+"!")
+		static func loadmd(file: String, error:=true):
+			var fp=FileAccess.open(file,FileAccess.READ)
+			if fp == null:
+				if error:
+					assert(false, "Error: Cannot find file \""+file+"\", file is not exists or be deleted or moved")
+				return null
+			var md=MarkdownDocument.new()
 			md.text=fp.get_as_text()
 			fp.close()
 			return md
