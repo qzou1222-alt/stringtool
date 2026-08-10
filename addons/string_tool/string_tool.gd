@@ -274,7 +274,7 @@ class color extends UnInstantiable:
 		return string
 class markdown extends UnInstantiable:
 	const MarkdownViewer = preload("res://addons/string_tool/mdv.gd")
-
+	const MarkdownParser = preload("res://addons/string_tool/mdp.gd")
 	## @deprecated: Please use MarkdownDocument instead Markdown.
 	## [b]This class is be deprecated. Please use MarkdownDocument instead Markdown.[/b]
 	class Markdown:
