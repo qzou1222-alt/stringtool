@@ -4,17 +4,21 @@
 ## [br]
 ## 1. Use RichTextLabel and "extends StringTool.markdown.MarkdownViewer" to instead.[br]
 ## 2. Create MarkdownViewer object and use add_child(mdv) in script.[br]
+@warning_ignore("unused_private_class_variable")
 @icon("res://addons/string_tool/MarkdownIcon.png")
 class_name MarkdownViewer
 extends RichTextLabel
-@export var markdown_enabled := true:
+enum TextTypes {
+    Normal,
+    BBCode,
+    Markdown
+}
+@export var text_type:=TextTypes.Markdown:
 	get:
-		return _mden
+		return _ttp
 	set(value):
-		_mden = value
-		_update_markdown()
-
-var _mden := true
+		_ttp=value
+var _ttp := 2
 @export_multiline var markdown_text: String:
 	get:
 		return _text
@@ -30,42 +34,42 @@ var _text := ""
 	get:
 		return _h1s
 	set(value):
-		_h1s = value
+		_h1s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head2_size := 26:
 	get:
 		return _h2s
 	set(value):
-		_h2s = value
+		_h2s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head3_size := 22:
 	get:
 		return _h3s
 	set(value):
-		_h3s = value
+		_h3s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head4_size := 20:
 	get:
 		return _h4s
 	set(value):
-		_h4s = value
+		_h4s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head5_size := 18:
 	get:
 		return _h5s
 	set(value):
-		_h5s = value
+		_h5s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head6_size := 16:
 	get:
 		return _h6s
 	set(value):
-		_h6s = value
+		_h6s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 var _h1s := 32
@@ -84,14 +88,18 @@ signal text_added(add_text:String)
 signal text_changed(new_text: String)
 signal heading_convert_rule_changed
 func _ready() -> void:
-	bbcode_enabled=true
+	bbcode_enabled = true
 func _update_markdown() -> void:
 	var current_txt := ""
 
-	if _mden:
-		current_txt = MarkdownParser.parse(_text, _h1s, _h2s, _h3s, _h4s, _h5s, _h6s)
-	else:
-		current_txt = _text
+	match _ttp:
+		TextTypes.Normal:
+			current_txt = _text.replace("[","\\[")
+		TextTypes.BBCode:
+			current_txt = _text
+		TextTypes.Markdown:
+			current_txt = MarkdownParser.parse(_text, _h1s, _h2s, _h3s, _h4s, _h5s, _h6s)
+		
 
 	text = current_txt
 
@@ -103,7 +111,6 @@ func _init(text=null) -> void:
 	else:
 		empty.emit()
 func add_text(text: String):
-	self.text += text
 	_text += text
 	_update_markdown()
 	text_added.emit(text)
