@@ -1,9 +1,9 @@
 # StringTool
 StringTool is a simple string utility library for Godot.
 ## New Feature
-markdown.MarkdownParser
+StringTool.html
 ## Current Version
-0.3.0
+0.4.0
 ## Main Usage
 ### Generate String
 ```gdscript

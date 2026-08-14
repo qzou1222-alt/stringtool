@@ -4,6 +4,8 @@
 ## [br]
 ## 1. Use RichTextLabel and "extends StringTool.markdown.MarkdownViewer" to instead.[br]
 ## 2. Create MarkdownViewer object and use add_child(mdv) in script.[br]
+@tool
+
 @icon("res://addons/string_tool/MarkdownIcon.png")
 class_name MarkdownViewer
 extends RichTextLabel
@@ -13,8 +15,9 @@ extends RichTextLabel
 	set(value):
 		_mden = value
 		_update_markdown()
-
+		notify_property_list_changed()
 var _mden := true
+
 @export_multiline var markdown_text: String:
 	get:
 		return _text
@@ -25,56 +28,59 @@ var _mden := true
 			text_changed.emit(value)
 
 var _text := ""
-
+@export_group("Heading")
 @export var head1_size := 32:
 	get:
 		return _h1s
 	set(value):
-		_h1s = value
+		_h1s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head2_size := 26:
 	get:
 		return _h2s
 	set(value):
-		_h2s = value
+		_h2s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head3_size := 22:
 	get:
 		return _h3s
 	set(value):
-		_h3s = value
+		_h3s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head4_size := 20:
 	get:
 		return _h4s
 	set(value):
-		_h4s = value
+		_h4s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head5_size := 18:
 	get:
 		return _h5s
 	set(value):
-		_h5s = value
+		_h5s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
 @export var head6_size := 16:
 	get:
 		return _h6s
 	set(value):
-		_h6s = value
+		_h6s = max(value, 1)
 		_update_markdown()
 		heading_convert_rule_changed.emit()
+		
 var _h1s := 32
 var _h2s := 26
 var _h3s := 22
 var _h4s := 20
 var _h5s := 18
 var _h6s := 16
-
+@export_group("Preview")
+@export_color_no_alpha var bg_color : Color = Color(0,0,0)
+@export_color_no_alpha var text_color : Color = Color(1,1,1)
 ## @deprecated: this variable is deprecated.
 var md: StringTool.markdown.Markdown
 ## @deprecated: this variable is deprecated.
@@ -84,7 +90,7 @@ signal text_added(add_text:String)
 signal text_changed(new_text: String)
 signal heading_convert_rule_changed
 func _ready() -> void:
-	bbcode_enabled=true
+	bbcode_enabled = true
 func _update_markdown() -> void:
 	var current_txt := ""
 
@@ -97,13 +103,13 @@ func _update_markdown() -> void:
 
 	if text.is_empty():
 		empty.emit()
+	
 func _init(text=null) -> void:
 	if text!=null:
 		self.markdown_text=text
 	else:
 		empty.emit()
 func add_text(text: String):
-	self.text += text
 	_text += text
 	_update_markdown()
 	text_added.emit(text)

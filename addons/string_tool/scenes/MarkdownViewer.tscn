@@ -2,13 +2,10 @@
 
 [ext_resource type="Script" uid="uid://cpd5xqqkdvkdf" path="res://addons/string_tool/scenes/markdown_viewer.gd" id="1_jk7af"]
 
-[node name="MarkdownViewer" type="RichTextLabel" unique_id=2073678902]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/normal_font_size = 96
-bbcode_enabled = true
-horizontal_alignment = 1
+[node name="MarkdownViewer" type="RichTextLabel" unique_id=775223540]
+offset_top = -1.0
+offset_right = 1152.0
+offset_bottom = 706.0
 script = ExtResource("1_jk7af")
+markdown_text = "***dsdfs***
+### sds"

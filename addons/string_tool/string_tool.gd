@@ -1,10 +1,12 @@
-## A simple string utility library for Godot. (v0.2.1)[br]
+## A simple string utility library for Godot. (v0.4.0)[br]
 ##
 ## [b]Contents Updated![/b][br]
 ##[br]
-## 1. StringTool.markdown.Markdown and StringTool.markdown.MarkdownViewer.bind_md() is deprecated.[br]
-## 2. Added more documentation comments for StringTool.
-## 3. Fixed MarkdownViewer and add Inspector variables.
+## 1. Added uncompleted HTML.[br]
+## 2. Added more signals.[br]
+## 3. Added more Inspector variables.[br]
+## 4. Added preview.[br]
+## 5. Heading now won't be negative.[br]
 @icon("res://addons/string_tool/icon04.png")
 extends RefCounted
 class_name StringTool
@@ -397,3 +399,48 @@ class markdown extends UnInstantiable:
 		return "## "+text
 	static func h3(text: String) -> String:
 		return "### "+text
+
+class html extends UnInstantiable:
+	class HTMLDocument:
+		var text = ""
+		func save(file: String, debug:=false):
+			var fp=FileAccess.open(file,FileAccess.WRITE)
+			if fp==null:
+				if debug:
+					print("[Info] Open Failed")
+				assert(false, "Error: Cannot open file "+file)
+			if debug:
+				print("[Info] Writing text to "+file)
+			fp.store_string(self.text)
+			fp.close()
+			if debug:
+				print("[Info] successfully saved HTML in "+file+"!")
+		func preview():
+			save("C:/Users/Administrator/Local/Temp/stringtool_preview.html",FileAccess.WRITE)
+			OS.shell_open("file:///C:/Users/Administrator/Local/Temp/stringtool_preview.html")
+		func _to_string() -> String:
+			return self.text
+		func add_h1(text: String) -> String:
+			var string=html.h1(text)+"\n"
+			self.text+=string
+			return string
+		func add_h2(text: String) -> String:
+			var string=html.h2(text)+"\n"
+			self.text+=string
+			return string
+		func add_h3(text: String) -> String:
+			var string=html.h3(text)+"\n"
+			self.text+=string
+			return string
+		func to_markdown():
+			return self.text.replace("<h1>", "# ").replace("<h2>", "## ").replace("<h3>", "### ").replace("</h1>", "").replace("</h2>", "").replace("</h3>", "")
+	static func create_html(code: String) -> HTMLDocument:
+		var htm = HTMLDocument.new()
+		htm.text=code
+		return htm
+	static func h1(text: String) -> String:
+		return "<h1>"+text+"</h1>"
+	static func h2(text: String) -> String:
+		return "<h2>"+text+"</h2>"
+	static func h3(text: String) -> String:
+		return "<h3>"+text+"</h3>"
